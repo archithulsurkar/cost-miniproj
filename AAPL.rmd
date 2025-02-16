@@ -1,0 +1,124 @@
+---
+title: "Regression Analysis on AAPL Stock Prices"
+author: "Archit H, Yashsmmita L, Sneha P, Soham S"
+date: "`r Sys.Date()`"
+output: 
+  pdf_document
+
+---
+
+# Introduction
+This report aims to analyze the relationship between the closing stock price of Apple Inc. (AAPL) and other key market indicators such as open price, high price, low price, and trading volume. The objective is to develop a linear regression model to predict the closing price based on these variables.
+
+# Dataset Description
+The dataset contains daily stock price information for AAPL with the following variables:
+
+- **Date:** Trading date
+- **Low:** Lowest price of the stock on that day
+- **Open:** Opening price
+- **Volume:** Number of shares traded
+- **High:** Highest price
+- **Close:** Closing price
+- **Adjusted Close:** Adjusted closing price after dividends and stock splits
+
+# Methodology
+
+## Load Libraries
+```{r}
+library(ggplot2)
+library(car)
+library(Metrics)
+library(corrplot)
+```
+
+## Read Dataset
+```{r}
+aapl_data <- read.csv("AAPL.csv", stringsAsFactors = FALSE)
+aapl_data$Date <- as.Date(aapl_data$Date, format = "%Y-%m-%d")
+```
+
+## Summary Statistics
+```{r}
+summary(aapl_data)
+colSums(is.na(aapl_data))
+```
+
+## Exploratory Data Analysis
+
+### Scatterplot Matrix
+```{r}
+pairs(~Close + Open + High + Low + Volume, data = aapl_data, main = "Scatterplot Matrix")
+```
+
+### Correlation Matrix
+```{r}
+correlation_matrix <- cor(aapl_data[, c("Close", "Open", "High", "Low", "Volume")])
+print(correlation_matrix)
+corrplot(correlation_matrix, method = "color", type = "lower", tl.col = "black",
+ main = "Correlation Heatmap")
+```
+
+### Distribution of Close Prices
+```{r}
+hist(aapl_data$Close, main = "Distribution of Close Prices", 
+xlab = "Close Price", col = "lightblue")
+plot(density(aapl_data$Close), main = "Density Plot of Close Prices")
+```
+
+## Linear Regression Model
+```{r}
+model <- lm(Close ~ Open + High + Low + Volume, data = aapl_data)
+summary(model)
+```
+
+## Check for Multicollinearity
+```{r}
+vif(model)
+```
+
+## Model Diagnostics
+
+### Actual vs Predicted Plot
+```{r}
+plot(aapl_data$Close, predict(model), main = "Actual vs Predicted Close Price",
+ xlab = "Actual Close Price", ylab = "Predicted Close Price")
+abline(0, 1, col = "red")
+```
+
+### Residual Plot
+```{r}
+plot(model$residuals, main = "Residual Plot", ylab = "Residuals", xlab = "Index")
+abline(h = 0, col = "blue")
+```
+
+### Q-Q Plot
+```{r}
+qqnorm(model$residuals, main = "Q-Q Plot")
+qqline(model$residuals, col = "red")
+```
+
+### Residuals vs Fitted Plot
+```{r}
+plot(model$fitted.values, model$residuals, main = "Residuals vs Fitted", 
+xlab = "Fitted Values", ylab = "Residuals")
+abline(h = 0, col = "red")
+```
+
+## Model Performance Metrics
+```{r}
+predicted <- predict(model)
+actual <- aapl_data$Close
+
+rmse_value <- rmse(actual, predicted)
+mae_value <- mae(actual, predicted)
+
+cat("RMSE:", rmse_value, "\n")
+cat("MAE:", mae_value, "\n")
+```
+
+# Results
+The linear regression model showed a strong relationship between the closing price and the other predictor variables. The R-squared value suggests a good fit, and the RMSE and MAE values indicate a reasonable prediction error. Diagnostic plots confirm that model assumptions are largely met.
+
+# Conclusion
+The analysis demonstrates that the closing price of AAPL stock can be effectively predicted using opening price, high price, low price, and volume. Investors can use this model to estimate future closing prices based on daily market data. Further improvements can involve incorporating other factors such as market sentiment and news analysis.
+
