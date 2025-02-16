@@ -1,6 +1,6 @@
 ---
 title: "Regression Analysis on AAPL Stock Prices"
-author: "Archit H, Yashsmita L, Sneha P, Soham S"
+author: "Atharva S, Archit H, Yashsmita L, Harsh R"
 date: "`r Sys.Date()`"
 output: 
   pdf_document
